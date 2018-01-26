@@ -20,7 +20,7 @@ namespace Lab6
         {
             bool AllLetters = true;
 
-            if (Regex.IsMatch(Word, "^[A-Za-z']+$")!=true)
+            if (Regex.IsMatch(Word, @"^[A-z\']+$")!=true)
             {
                 AllLetters = false;
             }
@@ -37,77 +37,103 @@ namespace Lab6
             if (IndexValue == 0)
             {
                 Word += "way";
+                return Word;
+            }
+            else if(IndexValue < 0)
+            {
+                return Word;
             }
             else
             {
                 Word1 = Word.Substring(IndexValue);
                 Word2 = Word.Remove(IndexValue);
                 Word = (Word1 + Word2 + "ay");
+                return Word;
             }
-
-            return Word;
-
         }
 
         static void Main(string[] args)
         {
-            string UserInput, Answer, DoAgain, Substring;
-            bool Repeat = true;
-            string[] MyArray, FinalString;
-            List<string> MyList = new List<string>();
-
-            Console.WriteLine("Welcome to the Pig Latin Translator!");
-
-            while (Repeat == true)
+            try
             {
-                Console.WriteLine("What English word would you like to translate into Pig Latin?");
-                UserInput = Console.ReadLine();
-                Console.WriteLine();
+                string UserInput, Answer, DoAgain, Substring;
+                bool Repeat = true;
+                string[] MyArray;
+                List<string> MyList, FailList;
 
-                UserInput.Trim(' ');
+                Console.WriteLine("Welcome to the Pig Latin Translator!");
 
-                if (Regex.IsMatch(UserInput, "[ ]") != true)
+                while (Repeat == true)
                 {
-                    if (ValidateInput(UserInput) == true)
+                    MyList = new List<string>();
+                    FailList = new List<string>();
+
+                    Console.WriteLine("What English word would you like to translate into Pig Latin?");
+                    UserInput = Console.ReadLine();
+                    Console.WriteLine();
+
+                    UserInput = UserInput.Trim(' ');
+
+                    if (Regex.IsMatch(UserInput, @"\s+") != true)
                     {
-                        Answer = EnglishToPigLatin(UserInput);
-                        Console.WriteLine(Answer);
+                        if (ValidateInput(UserInput) == true)
+                        {
+                            Answer = EnglishToPigLatin(UserInput);
+                            Console.WriteLine(Answer);
+                        }
+                        else
+                        {
+                            Answer = UserInput;
+                            Console.WriteLine(Answer);
+                        }
                     }
                     else
                     {
-                        Answer = UserInput;
-                        Console.WriteLine(Answer);
-                    }
-                }
-                else
-                {
-                    MyArray = GetWords(UserInput);
+                        MyArray = GetWords(UserInput);
 
-                    foreach (string sub in MyArray)
+                        foreach (string sub in MyArray)
+                        {
+                            if (ValidateInput(sub) == true)
+                            {
+                                Substring = EnglishToPigLatin(sub);
+                                MyList.Add(Substring);
+                            }
+                            else
+                            {
+                                FailList.Add(sub);
+                            }
+
+                        }
+                        if (FailList.Count > 0)
+                        {
+                            Answer = UserInput;
+                            Console.WriteLine(Answer);
+                        }
+                        else
+                        {
+                            foreach (string word in MyList)
+                            {
+                                Console.Write(word + " ");
+                            }
+                        }
+                    }
+
+                    Console.WriteLine("Would you like to translate another word? (Y or N)");
+                    DoAgain = Console.ReadLine();
+
+                    if (string.Compare(DoAgain, "Y", true) != 0)
                     {
-                        Substring = EnglishToPigLatin(sub);
-                        MyList.Add(Substring);
+                        Console.WriteLine("Goodbye!");
+                        Repeat = false;
+                        Console.Read();
                     }
-                    FinalString = MyList.ToArray<string>();
-                    foreach(string word in FinalString)
-                    {
-                        Console.Write(word + " ");
-                    }
-
-                }
-
-                Console.WriteLine("Would you like to translate another word? (Y or N)");
-                DoAgain = Console.ReadLine();
-                
-                if (string.Compare(DoAgain,"Y")!=0)
-                {
-                    Console.WriteLine("Goodbye!");
-                    Repeat = false;
-                    Console.Read();
                 }
             }
-
-
+            catch (Exception error1)
+            {
+                Console.WriteLine(error1.ToString());
+                Console.Read();
+            }            
         }
     }
 }
